@@ -1,0 +1,104 @@
+# Per-user namespace provisioning for the Kubernetes SL hands-on.
+#
+# A fresh namespace needs this platform scaffolding before the
+# create -> deploy -> promote-to-prod flow works in the portal:
+#   - a Project (the home for components)
+#   - three Environments (development, staging, production), all on the
+#     shared cluster-scoped ClusterDataPlane/default
+#   - a DeploymentPipeline defining the dev -> staging -> prod promotion path
+#
+# ClusterComponentTypes (web-application, service, ...) and ClusterResourceTypes
+# (postgres, nats, ...) are cluster-scoped and already available, so they are
+# not recreated here.
+#
+# Swap `kube-sl-handson` for each attendee's namespace. This is the step
+# Isala's per-user provisioning will automate; for now it's one manual apply.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-sl-handson
+  labels:
+    openchoreo.dev/control-plane: "true"
+---
+apiVersion: openchoreo.dev/v1alpha1
+kind: Environment
+metadata:
+  name: development
+  namespace: kube-sl-handson
+  annotations:
+    openchoreo.dev/display-name: Development
+    openchoreo.dev/description: Development
+  labels:
+    openchoreo.dev/name: development
+spec:
+  dataPlaneRef:
+    kind: ClusterDataPlane
+    name: default
+  isProduction: false
+---
+apiVersion: openchoreo.dev/v1alpha1
+kind: Environment
+metadata:
+  name: staging
+  namespace: kube-sl-handson
+  annotations:
+    openchoreo.dev/display-name: Staging
+    openchoreo.dev/description: Staging
+  labels:
+    openchoreo.dev/name: staging
+spec:
+  dataPlaneRef:
+    kind: ClusterDataPlane
+    name: default
+  isProduction: false
+---
+apiVersion: openchoreo.dev/v1alpha1
+kind: Environment
+metadata:
+  name: production
+  namespace: kube-sl-handson
+  annotations:
+    openchoreo.dev/display-name: Production
+    openchoreo.dev/description: Production
+  labels:
+    openchoreo.dev/name: production
+spec:
+  dataPlaneRef:
+    kind: ClusterDataPlane
+    name: default
+  isProduction: true
+---
+apiVersion: openchoreo.dev/v1alpha1
+kind: DeploymentPipeline
+metadata:
+  name: default
+  namespace: kube-sl-handson
+  annotations:
+    openchoreo.dev/display-name: Default Pipeline
+    openchoreo.dev/description: Standard deployment pipeline with dev, staging, and prod environments
+  labels:
+    openchoreo.dev/name: default
+spec:
+  promotionPaths:
+    - sourceEnvironmentRef:
+        name: development
+      targetEnvironmentRefs:
+        - name: staging
+    - sourceEnvironmentRef:
+        name: staging
+      targetEnvironmentRefs:
+        - name: production
+---
+apiVersion: openchoreo.dev/v1alpha1
+kind: Project
+metadata:
+  name: default
+  namespace: kube-sl-handson
+  annotations:
+    openchoreo.dev/display-name: Default Project
+    openchoreo.dev/description: Your first project to get started
+  labels:
+    openchoreo.dev/name: default
+spec:
+  deploymentPipelineRef:
+    name: default
