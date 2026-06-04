@@ -9,9 +9,9 @@ only (no promotion).
 > your namespace (in this guide: `kube-sl-handson`, project `default`). The data-plane WebSocket
 > policy is a one-time platform setup (already done for you).
 >
-> **On every Create wizard, set the Namespace dropdown to your namespace.** It defaults to
-> `default` each time and doesn't remember your last choice. All five pieces must land in the
-> same namespace and project, or the dependency pickers later won't find them.
+> **All five pieces must land in the same namespace and project**, or the dependency pickers
+> later won't find them. Each Create wizard pre-selects your namespace and project `default`,
+> so just confirm those are right before continuing.
 
 **Order matters.** A component can only wire to things that already exist, so build bottom-up:
 resources → the services that use them → the frontend that uses the services.
@@ -25,6 +25,19 @@ The images used below:
 | `doclet-document` | Service | `ghcr.io/openchoreo/samples/doclet-document:latest` | HTTP 8080, Project |
 | `doclet-collab` | Service | `ghcr.io/openchoreo/samples/doclet-collab:latest` | HTTP 8090, Project |
 | `doclet-frontend` | Web Application | `ghcr.io/openchoreo/samples/doclet-frontend:latest` | HTTP 80, External |
+
+Here's how the pieces connect once everything is wired:
+
+```mermaid
+flowchart TD
+    user([Browser / external traffic])
+    user -->|HTTP :80, External| fe[doclet-frontend<br/>Web Application]
+    fe -->|DOC_SERVICE_URL| doc[doclet-document<br/>Service :8080, Project]
+    fe -->|COLLAB_SERVICE_URL| col[doclet-collab<br/>Service :8090, Project]
+    doc -->|DB_HOST / DB_PORT / DB_USER / DB_PASSWORD / DB_NAME| pg[(doclet-postgres<br/>Resource)]
+    doc -->|DOCLET_NATS_URL| nats[(doclet-nats<br/>Resource)]
+    col -->|DOCLET_NATS_URL| nats
+```
 
 ---
 

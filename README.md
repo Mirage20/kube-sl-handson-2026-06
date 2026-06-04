@@ -14,10 +14,21 @@ container build.
 
 ## Sign in
 
-1. Open the portal URL shown on screen (locally: `http://openchoreo.localhost:8080`).
-2. Click **Sign In** and log in with the credentials on screen.
+1. Open the access page shown on screen and enter the NIC or passport number you
+   registered with. It gives you your own console URL, username, and password.
+2. Open that console URL, click **Sign In**, and log in with the username and password
+   from step 1.
 3. Everything you create goes into **your namespace**, provisioned for you ahead of time.
-   In these guides the namespace is `kube-sl-handson`; yours will have your name on it.
+   In these guides the namespace is `kube-sl-handson`; yours will have your name on it
+   (it matches your username).
+
+Lost your details? Go back to the access page and enter your NIC again.
+
+> Prefer the terminal? The access page also offers a kubeconfig download for `kubectl`.
+> The labs are all portal-based, so this is optional.
+>
+> Running locally instead? There's no access page — open the portal directly at
+> `http://openchoreo.localhost:8080` and log in with the credentials shown.
 
 ## Layout
 
